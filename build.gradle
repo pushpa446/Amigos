@@ -1,16 +1,54 @@
-group 'com.helloworld'
-version '1.0-SNAPSHOT'
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-tomcat-plugin:2.0'
+    }
+}
 
 apply plugin: 'java'
 apply plugin: 'war'
+apply plugin: 'com.bmuschko.tomcat'
 
-sourceCompatibility = 1.5
+sourceCompatibility = 1.8
+
+version = '1.0-SNAPSHOT'
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}
+
 dependencies {
+    def tomcatVersion = '7.0.57'
+    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+            "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}"
+    tomcat("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}") {
+        exclude group: 'org.eclipse.jdt.core.compiler', module: 'ecj'
+    }
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile 'org.springframework:spring-webmvc:4.1.6.RELEASE'
+}
+
+tomcatRun.contextPath = '/'
+tomcatRunWar.contextPath = '/'
+
+
+tomcatRun{
+    httpPort = 9090
+}
+task buildRun {
+    doLast{
+        echo "./gradlew clean build"
+    }
 }
